@@ -1,33 +1,39 @@
-# evaluate_xAI.py
 """
-Evaluate Explainable AI models on Voter datasets.
+evaluate_xAI.py
+
+Evaluate Explainable AI models on all Voter datasets.
+
+Usage:
+    python evaluate_xAI.py
 """
 
 import torch
 from pathlib import Path
 
 from ModelFactory import ModelFactory
-from constants import CHECKPOINTS, DATASETS, EXPERIMENTS_XAI
 import utils
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# MAIN EVALUATION
-# ═══════════════════════════════════════════════════════════════════════════
-
-def main() -> None:
+def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
     
     factory = ModelFactory(device=device)
+    batch_size = 64
 
-    # Get XAI models from constants
+    # Models to evaluate
     models_to_evaluate = {
-        "expv2_resnet20": CHECKPOINTS["expv2_resnet20"],
-        "expv2_vgg16": CHECKPOINTS["expv2_vgg16"],
+        "expv2_resnet20": "./checkpoint/Explainable_ResNet20.pth",
+        "expv2_vgg16": "./checkpoint/Explainable_VGG16.pth",
     }
 
-    batch_size = 64
+    # Datasets using utils.py functions
+    datasets = {
+        "OnlyBubbles - Validation": utils.GetVoterValidation(batch_size),
+        "Combined - Validation": utils.GetVoterValidationCombined(batch_size),
+        "OnlyBubbles - Training": utils.GetVoterTraining(batch_size),
+        "Combined - Training": utils.GetVoterTrainingCombined(batch_size),
+    }
     
     print("\n" + "=" * 70)
     print("EXPLAINABLE AI MODEL EVALUATION - ALL DATASETS")
@@ -46,18 +52,9 @@ def main() -> None:
         try:
             model = factory.get_model(model_name, str(ckpt_path))
             
-            # Evaluate on all datasets from constants
-            for dataset_name, dataset_path in DATASETS.items():
-                if not Path(dataset_path).exists():
-                    print(f"  {dataset_name}: Dataset not found")
-                    continue
-                
-                # Use make_loader from utils.py
-                loader = utils.make_loader(str(dataset_path), batch_size, device)
-                
-                # Use validateD from utils.py
+            for dataset_name, loader in datasets.items():
                 acc = utils.validateD(loader, model, device)
-                print(f"  {dataset_name:20s}: {acc:.4f} ({acc * 100:.2f}%)")
+                print(f"  {dataset_name:<30}: {acc:.4f} ({acc * 100:.2f}%)")
                 
         except Exception as e:
             print(f"  Error: {e}")

@@ -65,10 +65,7 @@ class ModelFactory:
         # Path to base directory (for models.architecture.ResNet)
         _BASE_DIR = self.base_dir
 
-        # ═══════════════════════════════════════════════════════════════
-        # Add ALL required paths to sys.path
-        # ═══════════════════════════════════════════════════════════════
-        
+        # Adding all required paths to sys.path
         paths_to_add = [
             str(_PPNEXT_DIR),    # For: from protopnet.* import ...
             str(_COSINE_DIR),    # For: other cosine-is-almost imports
