@@ -87,12 +87,12 @@ pip install torch torchvision numpy
 ## Usage
 
 ### Evaluate models
-```python
+```bash
 python evaluate_xAI.py
 ```
 
 ### Inspect Prototype Parameters
-```python
+```bash
 python check_prototype_params.py
 ```
 
